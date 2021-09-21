@@ -1,5 +1,6 @@
 package com.example.movieappmvvm.services.repositories;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -18,9 +19,21 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MovieRepositoryImpl implements IMovieRepository{
-    MovieModel movieModel;
-    List<Result> movieResults;
-    MutableLiveData<List<Result>> mResultsLiveDatas;
+    private MovieModel movieModel;
+    private List<Result> movieResults;
+    private MutableLiveData<List<Result>> mResultsLiveDatas;
+    private static Context mContext;
+    private static MovieRepositoryImpl instance;
+
+    public static MovieRepositoryImpl getMovieRepository(Context context){
+        if(instance == null){
+            instance = new MovieRepositoryImpl();
+            mContext = context;
+        }
+        return instance;
+    }
+
+
 
     @Override
     public MutableLiveData<List<Result>> getTopRatedMovies(int pageNo) {
@@ -35,7 +48,10 @@ public class MovieRepositoryImpl implements IMovieRepository{
             @Override
             public void onResponse(Call<MovieModel> call, Response<MovieModel> response) {
                 movieModel = response.body();
-                Log.d("DATA", movieModel.getResults().get(0).toString());
+                //Log.d("DATA", movieModel.getResults().get(0).toString());
+                movieResults = movieModel.getResults();
+
+                mResultsLiveDatas.postValue(movieResults);
             }
 
             @Override
